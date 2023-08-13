@@ -28,13 +28,7 @@ public class ApplicationExceptionHandle {
         return  errorMap;
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(JwtExpiredException.class)
-    public Map<String, String> handleJwtExpiredException(JwtExpiredException exception){
-        Map<String, String> errorMap = new HashMap<>();
-        errorMap.put("error", exception.getMessage());
-        return  errorMap;
-    }
+
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(Exception.class)
