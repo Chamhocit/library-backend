@@ -12,12 +12,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,18 +33,17 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request, HttpServletResponse response){
-//        LoginResponse loginResponse = authenticationService.authenticate(request);
-//        if(loginResponse != null){
-//            String jwtToken = loginResponse.getAccessToken();
-//            Cookie jwtCookie = new Cookie("jwt", jwtToken);
-//            jwtCookie.setHttpOnly(true);
-//            jwtCookie.setMaxAge((int) (jwtExpiration/1000));
-//            jwtCookie.setPath("/");
-//            response.addCookie(jwtCookie);
-            return ResponseEntity.ok(authenticationService.authenticate(request));
-//        }else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect account or password");
-//        }
+        LoginResponse loginResponse = authenticationService.authenticate(request);
+        String jwtToken = loginResponse.getAccessToken();
+        Cookie jwtCookie = new Cookie("jwt", jwtToken);
+        jwtCookie.setHttpOnly(true);
+
+        jwtCookie.setMaxAge(7*24*60*60);
+        jwtCookie.setPath("/");
+        jwtCookie.setDomain("localhost");
+
+        response.addCookie(jwtCookie);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/refresh-token")
@@ -57,6 +54,12 @@ public class AuthenticationController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication){
         logoutService.logout(request, response, authentication);
+        Cookie jwtCookie = new Cookie("jwt", null);
+        jwtCookie.setMaxAge(0);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setDomain("localhost");
+        response.addCookie(jwtCookie);
         return ResponseEntity.ok("User Logout Successfully.");
     }
 }

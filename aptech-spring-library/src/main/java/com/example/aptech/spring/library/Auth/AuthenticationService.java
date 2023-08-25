@@ -95,7 +95,7 @@ public class AuthenticationService {
         return LoginResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-                .email(user.getEmail())
+                .name(user.getName())
                 .build();
     }
 

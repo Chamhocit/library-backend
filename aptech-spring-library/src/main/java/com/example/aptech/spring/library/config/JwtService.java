@@ -2,10 +2,13 @@ package com.example.aptech.spring.library.config;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,5 +93,16 @@ public class JwtService {
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException ex) {
             return true;
         }
+    }
+
+    public String getJwt(HttpServletRequest request, String cookieName){
+        Cookie[] cookies = request.getCookies();
+        if(cookies!=null){
+            return Arrays.stream(cookies)
+                    .filter(x->x.getName().equals(cookieName))
+                    .map(Cookie::getValue)
+                    .findFirst().orElse(null);
+        }
+        return null;
     }
 }

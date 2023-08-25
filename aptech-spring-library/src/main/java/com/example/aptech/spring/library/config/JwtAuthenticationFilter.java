@@ -1,6 +1,7 @@
 package com.example.aptech.spring.library.config;
 
 import com.example.aptech.spring.library.dao.TokenRepository;
+import jakarta.servlet.http.Cookie;
 import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -31,18 +34,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        Cookie[] cookies = request.getCookies();
+        if(cookies==null){
             filterChain.doFilter(request, response);
             return;
-        }
+        }else if(!Arrays.stream(cookies).map(Cookie::getName).anyMatch(x->x.equals("jwt"))){
+            filterChain.doFilter(request, response);
+            return;
+        };
 
+//        final String authHeader = request.getHeader("Authorization");
+//        final String jwt;
+//        final String userEmail;
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//        jwt = authHeader.substring(7);
+        final String cookieName = "jwt";
+        final String userEmail;
+        String jwt = jwtService.getJwt(request, cookieName);
 
-        jwt = authHeader.substring(7);
 
         if (jwtService.checkTokenExpired(jwt)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
