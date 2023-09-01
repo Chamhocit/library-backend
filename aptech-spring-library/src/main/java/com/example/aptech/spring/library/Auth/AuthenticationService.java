@@ -11,6 +11,7 @@ import com.example.aptech.spring.library.entity.Token;
 import com.example.aptech.spring.library.entity.User;
 import com.example.aptech.spring.library.entity.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Set;
 
 @Service
@@ -33,7 +35,6 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
-
 
     private void saveUserToken(User user, String jwtToken){
         var token = Token.builder()
@@ -64,7 +65,6 @@ public class AuthenticationService {
         User savedUser = userRepository.save(user);
 
         Set<Role> roles = request.getRoles();
-//        roles.stream().forEach(x->System.out.println(x.getId()));
         for(Role role: roles){
             UserRole userRole = new UserRole();
             userRole.setUser(savedUser);
@@ -72,10 +72,6 @@ public class AuthenticationService {
             userRole.setRole(persistedRole);
             userRoleRepository.save(userRole);
         }
-//        var jwtToken = jwtService.generateToken(user);
-//        var refreshToken = jwtService.generateRefreshToken(user);
-//            saveUserToken(user, jwtToken);
-
         return RegisterResponse.builder()
                 .id(savedUser.getId())
                 .name(savedUser.getName())
@@ -84,7 +80,7 @@ public class AuthenticationService {
                 .roles(roles).build();
     }
 
-    public LoginResponse authenticate(AuthenticationRequest request){
+    public LoginResponse authenticate(LoginRequest request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
@@ -122,4 +118,8 @@ public class AuthenticationService {
             }
         }
     }
+
+
+
+
 }

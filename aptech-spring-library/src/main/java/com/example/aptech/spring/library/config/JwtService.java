@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -41,6 +38,11 @@ public class JwtService {
     public <T> T extractClaim(String token, Function<Claims, T> claimsTFunction){
         final Claims claims = extractAllClaims(token);
         return claimsTFunction.apply(claims);
+    }
+
+    public Map<String, String> extractUserRole(String token){
+        Claims claims = extractAllClaims(token);
+        return (Map<String, String>)  claims.get("userRole");
     }
 
     public String extractUsername(String token){
@@ -105,4 +107,23 @@ public class JwtService {
         }
         return null;
     }
+
+    public boolean checkCookie(HttpServletRequest request){
+        boolean f = true;
+        Cookie[] cookies = request.getCookies();
+        if(cookies==null){
+            f = false;
+        }else {
+            if(!Arrays.stream(cookies).map(Cookie::getName).anyMatch(x -> x.equals("jwt"))){
+                f = false;
+            }else {
+                String jwt = getJwt(request, "jwt");
+                if(checkTokenExpired(jwt)){
+                    f = false;
+                }
+            }
+        }
+        return f;
+    }
+
 }

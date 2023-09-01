@@ -15,11 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-
-
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+
 
 @Component
 @RequiredArgsConstructor
@@ -43,14 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         };
 
-//        final String authHeader = request.getHeader("Authorization");
-//        final String jwt;
-//        final String userEmail;
-//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-//        jwt = authHeader.substring(7);
         final String cookieName = "jwt";
         final String userEmail;
         String jwt = jwtService.getJwt(request, cookieName);

@@ -18,10 +18,10 @@ public class ReviewController {
     }
 
     @GetMapping("/secure/user/book")
-    public  Boolean reviewBookByUser(@RequestHeader(value = "Authorization") String token,
+    public  Boolean reviewBookByUser(@CookieValue(name = "jwt") String token,
                                      @RequestParam Long bookId)throws Exception{
-        String jwt = token.substring(7);
-        String userEmail = jwtService.extractUsername(jwt);
+
+        String userEmail = jwtService.extractUsername(token);
         if(userEmail == null){
             throw new Exception("User email is missing");
         }
@@ -29,11 +29,11 @@ public class ReviewController {
     }
 
     @PostMapping("/secure")
-    public void postReview(@RequestHeader(value = "Authorization") String token,
+    public void postReview(@CookieValue(name = "jwt") String token,
                            @RequestBody ReviewRequest reviewRequest) throws Exception{
 
-        String jwt = token.substring(7);
-        String userEmail = jwtService.extractUsername(jwt);
+
+        String userEmail = jwtService.extractUsername(token);
         if(userEmail == null){
             throw new Exception("User email is missing");
         }
