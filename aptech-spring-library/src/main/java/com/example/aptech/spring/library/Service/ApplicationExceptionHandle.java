@@ -30,7 +30,7 @@ public class ApplicationExceptionHandle {
 
 
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(Exception.class)
     public Map<String, String> handleException(Exception exception){
         Map<String, String> errorMap = new HashMap<>();

@@ -4,11 +4,12 @@ package com.example.aptech.spring.library.controller;
 import com.example.aptech.spring.library.Service.BookService;
 import com.example.aptech.spring.library.config.JwtService;
 import com.example.aptech.spring.library.entity.Book;
+import com.example.aptech.spring.library.response.ShelfCurrentLoansResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 
 
 @CrossOrigin("http://localhost:3000")
@@ -17,20 +18,19 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
     private BookService bookService;
     private JwtService jwtService;
+
     @Autowired
     public BookController(BookService bookService, JwtService jwtService) {
         this.bookService = bookService;
         this.jwtService = jwtService;
     }
 
-    @GetMapping("/authenticate")
-    public ResponseEntity<?> getJwtAuthenticate( HttpServletRequest request){
-        if(jwtService.checkCookie(request)){
-            return ResponseEntity.ok().body(true);
-        }else {
-            return ResponseEntity.badRequest().body(false);
-        }
+    @GetMapping("/secure/currentloans")
+    public List<ShelfCurrentLoansResponse> currentLoans(@CookieValue(name = "jwt") String token) throws Exception{
+        String userEmail = jwtService.extractUsername(token);
+        return bookService.currentLoans(userEmail);
     }
+
 
 
     @GetMapping("/secure/ischeckout/byuser")
@@ -51,4 +51,17 @@ public class BookController {
         String userEmail = jwtService.extractUsername(token);
         return bookService.currentLoansCount(userEmail);
     }
+
+    @PutMapping("/secure/return")
+    public void returnBook(@CookieValue(name = "jwt") String token, @RequestParam Long bookId) throws Exception{
+        String userEmail = jwtService.extractUsername(token);
+        bookService.returnBook(userEmail, bookId);
+    }
+
+    @PutMapping("/secure/renew/loan")
+    public void renewLoan(@CookieValue(name = "jwt") String token, @RequestParam Long bookId) throws Exception{
+        String userEmail = jwtService.extractUsername(token);
+        bookService.renewLoan(userEmail, bookId);
+    }
+
 }

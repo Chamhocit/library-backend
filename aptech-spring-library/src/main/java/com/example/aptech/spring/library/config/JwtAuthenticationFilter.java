@@ -46,12 +46,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = jwtService.getJwt(request, cookieName);
 
 
-        if (jwtService.checkTokenExpired(jwt)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Token has expired\"}");
-            return;
-        }
+//        if (jwtService.checkTokenExpired(jwt)) {
+//            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.setContentType("application/json");
+//            response.getWriter().write("{\"error\": \"Token has expired\"}");
+//            return;
+//        }
 
             userEmail=jwtService.extractUsername(jwt);
 

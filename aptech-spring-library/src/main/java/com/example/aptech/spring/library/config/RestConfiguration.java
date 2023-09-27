@@ -1,6 +1,8 @@
 package com.example.aptech.spring.library.config;
 
 import com.example.aptech.spring.library.entity.Book;
+import com.example.aptech.spring.library.entity.History;
+import com.example.aptech.spring.library.entity.Message;
 import com.example.aptech.spring.library.entity.Review;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.context.annotation.Configuration;
@@ -26,5 +28,7 @@ public class RestConfiguration implements RepositoryRestConfigurer {
 
         configuration.exposeIdsFor(Review.class);
         configuration.exposeIdsFor(Book.class);
+        configuration.exposeIdsFor(History.class);
+        configuration.exposeIdsFor(Message.class);
     }
 }

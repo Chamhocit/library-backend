@@ -2,6 +2,11 @@ package com.example.aptech.spring.library.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Session;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.query.NativeQuery;
+
 import java.util.Set;
 
 @Entity
@@ -21,4 +26,6 @@ public class Role {
     @ManyToMany(mappedBy = "role")
     @JsonIgnore
     private Set<User> users;
+
+
 }

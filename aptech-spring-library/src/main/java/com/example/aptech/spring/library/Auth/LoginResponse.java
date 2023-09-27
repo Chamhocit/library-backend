@@ -19,4 +19,5 @@ public class LoginResponse {
 
     @JsonProperty("name")
     private String name;
+
 }

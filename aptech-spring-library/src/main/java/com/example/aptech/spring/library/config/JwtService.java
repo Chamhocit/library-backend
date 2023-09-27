@@ -1,26 +1,25 @@
 package com.example.aptech.spring.library.config;
+
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
     @Value("${security.jwt.secret-key}")
     private String secretKey;
 
-    @Value("${security.jwt.expiration}")
-    private long jwtExpiration;
 
-    @Value("${security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
 
     private Key geSignInKey()  {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -40,35 +39,41 @@ public class JwtService {
         return claimsTFunction.apply(claims);
     }
 
-    public Map<String, String> extractUserRole(String token){
+    public List<String> extractUserRole(String token){
         Claims claims = extractAllClaims(token);
-        return (Map<String, String>)  claims.get("userRole");
+        return (List<String>)  claims.get("roles");
     }
 
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);
     }
 
-    private String buildToken(Map<String, Object> extractClaims, UserDetails userDetails, long expiration){
+
+    public String generateToken(UserDetails userDetails){
+//        Algorithm algorithm = Algorithm.HMAC256(secretKey.getBytes());
+        Set<String> roles = userDetails.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
         return Jwts.builder()
-                .setClaims(extractClaims)
+                .claim("roles", roles)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+expiration))
-                .signWith(geSignInKey(),  SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis()+7*24*60*60*1000))
+                .signWith(geSignInKey())
                 .compact();
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails){
-        return buildToken(extraClaims,userDetails, jwtExpiration);
-    }
-
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(),userDetails);
-    }
 
     public String generateRefreshToken(UserDetails userDetails){
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+//        Algorithm algorithm = Algorithm.HMAC256(secretKey.getBytes());
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        return Jwts.builder()
+                .claim("roles", roles)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+(7+2)*24*60*60*1000))
+                .signWith(geSignInKey())
+                .compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){
@@ -86,7 +91,7 @@ public class JwtService {
     public boolean checkTokenExpired(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(geSignInKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -108,22 +113,6 @@ public class JwtService {
         return null;
     }
 
-    public boolean checkCookie(HttpServletRequest request){
-        boolean f = true;
-        Cookie[] cookies = request.getCookies();
-        if(cookies==null){
-            f = false;
-        }else {
-            if(!Arrays.stream(cookies).map(Cookie::getName).anyMatch(x -> x.equals("jwt"))){
-                f = false;
-            }else {
-                String jwt = getJwt(request, "jwt");
-                if(checkTokenExpired(jwt)){
-                    f = false;
-                }
-            }
-        }
-        return f;
-    }
+
 
 }

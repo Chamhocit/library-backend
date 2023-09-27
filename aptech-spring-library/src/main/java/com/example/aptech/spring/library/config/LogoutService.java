@@ -38,10 +38,15 @@ public class LogoutService implements LogoutHandler {
                     tokenRepository.save(storedToken);
                     SecurityContextHolder.clearContext();
                     Cookie jwtCookie = new Cookie("jwt", null);
+                    Cookie userEmail = new Cookie("userName", null);
+                    userEmail.setMaxAge(0);
+                    userEmail.setPath("/");
+                    userEmail.setDomain("localhost");
                     jwtCookie.setHttpOnly(true);
                     jwtCookie.setPath("/");
                     jwtCookie.setMaxAge(0);
                     jwtCookie.setDomain("localhost");
+                    response.addCookie(userEmail);
                     response.addCookie(jwtCookie);
                     response.setStatus(HttpServletResponse.SC_OK);
                     setMessageResponse.SetMessage(response, "User Logout Success.");

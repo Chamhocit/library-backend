@@ -14,18 +14,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
@@ -85,9 +87,21 @@ public class AuthenticationService {
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
+        //set role
+//        List<Role> roles = roleRepository.findAllRoleByUser(user.getId());
+//        roles.forEach(x->System.out.println(x.getName()));
+//        Collection<SimpleGrantedAuthority> authorityCollections = new ArrayList<>();
+//        Set<Role> roleSet = new HashSet<>();
+//        roles.stream().forEach(c->roleSet.add(c));
+//        roleSet.stream().forEach(i->authorityCollections.add(new SimpleGrantedAuthority(i.getName())));
+//        user.setRole(roleSet);
+        //lwu token
+
+
+        Collection<SimpleGrantedAuthority> authorities = (Collection<SimpleGrantedAuthority>) user.getAuthorities();
+        authorities.forEach(x->System.out.println(x));
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
-
         return LoginResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
