@@ -34,11 +34,13 @@ public class AuthenticationController {
         jwtCookie.setHttpOnly(true);
         jwtCookie.setMaxAge(7*24*60*60);
         jwtCookie.setPath("/");
+        jwtCookie.setSecure(true);
         jwtCookie.setDomain("localhost");
         //thêm cookie userMail
         Cookie userEmailCookie = new Cookie("userName", request.getEmail());
         userEmailCookie.setMaxAge(7*24*60*60);
         userEmailCookie.setPath("/");
+        userEmailCookie.setSecure(true);
         userEmailCookie.setDomain("localhost");
         // add 2 cookie vào response
         response.addCookie(userEmailCookie);

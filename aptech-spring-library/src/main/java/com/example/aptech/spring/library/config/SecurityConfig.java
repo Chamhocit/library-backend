@@ -49,7 +49,7 @@ public class SecurityConfig {
         // chính sách cors
         httpSecurity.cors().configurationSource(request -> {
             CorsConfiguration corsConfig = new CorsConfiguration();
-            corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+            corsConfig.setAllowedOrigins(Arrays.asList("https://localhost:3000"));
             corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             corsConfig.setAllowedHeaders(Arrays.asList("*"));
             corsConfig.setAllowCredentials(true);

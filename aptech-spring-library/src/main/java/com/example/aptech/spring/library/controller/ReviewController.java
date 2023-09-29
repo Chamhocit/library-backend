@@ -5,7 +5,7 @@ import com.example.aptech.spring.library.Service.ReviewService;
 import com.example.aptech.spring.library.config.JwtService;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin("http://localhost:3000")
+
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController {
